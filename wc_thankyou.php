@@ -13,6 +13,7 @@ add_action('woocommerce_thankyou', function () {
         return;
     endif;
 
+
     // retrieve order id
     $order_id = wc_get_order_id_by_order_key($_GET['key']);
 
@@ -21,8 +22,6 @@ add_action('woocommerce_thankyou', function () {
 
     // retrieve user IP
     $user_ip = ($_SERVER['HTTP_CF_CONNECTING_IP'] ? $_SERVER['HTTP_CF_CONNECTING_IP'] : $_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
-
-    $user_ip = '23.82.194.166';
 
     // retrieve What's My IP API key
     $wmip_api_keys = get_option('proxy-order-on-hold-api-key') ? get_option('proxy-order-on-hold-api-key') : false;
@@ -60,14 +59,19 @@ add_action('woocommerce_thankyou', function () {
 
         if (strpos($is_proxy, 'yes')) :
 
+            // retrieve current order statuses (looking for follow-up status)
+            $curr_statuses = wc_get_order_statuses();
+
             // add order note
             $note = __('<b><u><i>NOTE:</i></u> Order placed via Proxy/VPN.</b><br>');
             $note .= __('<b><u><i>IP Address:</i></u> ' . str_replace('ip:', '', $response[0]) . '</b><br>');
             $note .= __('<b><u><i>Proxy Type:</i></u> ' . str_replace('proxy_type:', '', $response[2]) . '</b><br><br>');
 
             // add note for orders already on hold, else place order on hold with notice
-            if ($ord_obj->get_status() == 'on-hold') :
+            if ($ord_obj->get_status() == 'on-hold' || $ord_obj->get_status() == 'follow-up') :
                 $ord_obj->add_order_note($note, 0, false);
+            elseif (in_array(['Follow-Up', 'Follow Up'], $curr_statuses)) :
+                $ord_obj->set_status('follow-up', $note, true);
             else :
                 $ord_obj->set_status('on-hold', $note, true);
             endif;
