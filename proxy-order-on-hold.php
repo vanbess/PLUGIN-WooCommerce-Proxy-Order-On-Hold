@@ -28,6 +28,25 @@ add_action('plugins_loaded', function () {
     // Settings
     include PROXH_PATH . 'settings_page.php';
 
-    // WooCommerce thank you
+    // WooCommerce thank you action
     include PROXH_PATH . 'wc_thankyou.php';
+
+    // Action Scheduler action
+    include PROXH_PATH . 'as_action.php';
+
+    // Logger
+    function pc_logger($log_fname, $message, $time_stamp) {
+    
+        // delete log if it gets > 10mb
+        if (filesize(PROXH_PATH . $log_fname . '.log') !== false && filesize(PROXH_PATH . $log_fname . '.log') > 10485760) :
+            unlink(PROXH_PATH . $log_fname . '.log');
+        endif;
+    
+        // write to log
+        file_put_contents(PROXH_PATH . $log_fname . '.log', date('j F Y @ h:i:s', $time_stamp) . ': ' . $message . PHP_EOL, FILE_APPEND);
+    }
+
 });
+
+
+
