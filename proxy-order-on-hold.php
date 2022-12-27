@@ -3,7 +3,7 @@
 /**
  * Plugin Name:       Proxy Order On-Hold
  * Description:       Checks whether WooCommerce order has been placed via proxy/VPN and puts it on hold if true
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 5.4
  * Requires PHP:      7.2
  * Author:            WC Bessinger
